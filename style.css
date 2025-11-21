@@ -1,0 +1,271 @@
+:root {
+    --bg: #050505;
+    --panel: #0f0a0a;
+    --gold: #c5a059;
+    --gold-bright: #ffd700;
+    --blood: #8a0303;
+    --blood-bright: #ff0000;
+    --text: #dcdcdc;
+    --text-mute: #777;
+    
+    --font-horror: 'Creepster', cursive;
+    --font-title: 'Cinzel Decorative', serif;
+    --font-body: 'Spectral', serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
+body {
+    background-color: var(--bg); color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    overflow-x: hidden; user-select: none;
+}
+
+/* BACKGROUND */
+.bg-texture {
+    position: fixed; inset: 0; z-index: -1;
+    background: radial-gradient(circle at center, #1a0f0f 0%, #000 100%);
+    opacity: 0.8;
+}
+.bg-vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+}
+
+/* WRAPPER */
+.app-wrapper {
+    position: relative; z-index: 10;
+    width: 100%; max-width: 450px;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 25px;
+}
+
+/* HEADER */
+.app-header { text-align: center; margin-bottom: 10px; }
+
+.horror-title {
+    font-family: var(--font-horror); font-size: 3.5rem; color: var(--blood);
+    letter-spacing: 3px; margin-bottom: 5px; line-height: 1;
+    position: relative; text-shadow: 2px 2px 0px #300;
+    animation: haunt 4s infinite alternate;
+}
+.horror-title::before {
+    content: attr(data-text); position: absolute; left: 2px; text-shadow: -1px 0 red;
+    top: 0; width: 100%; overflow: hidden; opacity: 0.5;
+    animation: noise-1 3s infinite linear alternate-reverse;
+}
+.horror-title::after {
+    content: attr(data-text); position: absolute; left: -2px; text-shadow: 1px 0 blue;
+    top: 0; width: 100%; overflow: hidden; opacity: 0.5;
+    animation: noise-2 2s infinite linear alternate-reverse;
+}
+
+.divider-blood {
+    height: 2px; width: 80px; margin: 10px auto;
+    background: linear-gradient(90deg, transparent, var(--blood-bright), transparent);
+    box-shadow: 0 0 10px var(--blood);
+}
+.app-header p { 
+    color: var(--text-mute); font-size: 0.85rem; letter-spacing: 3px; 
+    text-transform: uppercase; font-family: var(--font-title);
+}
+
+/* GAME BOX */
+.game-box {
+    background: rgba(15, 10, 10, 0.9);
+    border: 1px solid #333;
+    border-top: 3px solid var(--gold);
+    border-bottom: 3px solid var(--gold);
+    padding: 2rem;
+    box-shadow: 0 20px 60px -10px rgba(0,0,0,0.8);
+    min-height: 340px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    animation: breath 6s ease-in-out infinite;
+}
+
+/* SCREENS */
+.screen { width: 100%; display: none; animation: fadeIn 0.6s ease-out; }
+.screen.active { display: block; }
+.hide { display: none !important; }
+.show { display: flex !important; flex-direction: column; align-items: center; }
+
+/* INPUT */
+.input-wrapper { width: 100%; position: relative; margin-bottom: 2.5rem; text-align: center; }
+label {
+    display: block; font-size: 0.75rem; letter-spacing: 2px; color: var(--gold);
+    margin-bottom: 15px; font-weight: bold;
+}
+input {
+    width: 100%; background: #0a0a0a; border: 1px solid #333;
+    color: #fff; padding: 15px;
+    font-family: var(--font-title); font-size: 1.5rem; text-align: center;
+    transition: 0.3s; text-transform: uppercase;
+    box-shadow: inset 0 0 10px #000;
+}
+input:focus { 
+    border-color: var(--blood-bright); background: #000; 
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+}
+input::placeholder { color: #333; font-size: 1.2rem; font-family: var(--font-body); }
+
+.btn-main {
+    width: 100%; padding: 16px;
+    background: var(--blood); color: #fff;
+    border: 1px solid #ff3333;
+    font-family: var(--font-title); font-size: 1.3rem; letter-spacing: 2px;
+    cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
+    box-shadow: 0 5px 20px rgba(138, 3, 3, 0.4);
+}
+.btn-main:hover { background: #b30000; transform: scale(1.02); }
+.btn-main:active { transform: scale(0.98); }
+
+/* LOADING */
+#screenLoading { height: 100%; min-height: 250px; justify-content: center; }
+.pulse-wrapper {
+    position: relative; width: 80px; height: 80px; margin-bottom: 20px;
+    display: flex; justify-content: center; align-items: center;
+}
+.pulse-icon { font-size: 3.5rem; z-index: 2; animation: eyePulse 1s infinite; }
+.pulse-ring {
+    position: absolute; inset: 0; border: 2px solid var(--blood-bright);
+    border-radius: 50%; animation: ping 1.5s infinite; opacity: 0.5;
+}
+#loadingText { 
+    font-family: var(--font-title); font-size: 1.2rem; 
+    color: var(--text-mute); letter-spacing: 2px; 
+    animation: tremble 0.1s infinite;
+}
+
+/* RESULT CARD */
+.result-card {
+    width: 100%; background: #080808; border: 1px solid var(--gold);
+    padding: 20px; margin-bottom: 25px; position: relative;
+    box-shadow: 0 15px 40px #000; overflow: hidden;
+    /* Animasi gerak default */
+    animation: floatCard 6s ease-in-out infinite;
+}
+/* Efek Kilau Lewat */
+.result-card::after {
+    content: ''; position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.08), transparent);
+    transform: skewX(-20deg); animation: shine 4s infinite; pointer-events: none;
+}
+
+.card-header-row {
+    display: flex; justify-content: space-between; margin-bottom: 15px;
+    font-size: 0.7rem; letter-spacing: 1px; color: #666;
+}
+.badge { border: 1px solid #444; padding: 2px 8px; color: #ccc; background: #111; }
+
+.image-frame {
+    width: 100%; height: 220px; background: #000; margin-bottom: 15px;
+    overflow: hidden; border: 1px solid #222; position: relative;
+}
+#khodamImg {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: sepia(0.5) contrast(1.2) brightness(0.8);
+}
+.inner-shadow {
+    position: absolute; inset: 0; box-shadow: inset 0 0 30px #000; pointer-events: none;
+}
+
+.card-body { text-align: center; margin-bottom: 20px; }
+h2 {
+    font-family: var(--font-title); color: var(--gold); font-size: 1.8rem;
+    margin-bottom: 8px; text-transform: uppercase; line-height: 1;
+}
+.line-div { height: 1px; width: 60px; background: var(--blood); margin: 0 auto 10px; }
+#khodamDesc { font-style: italic; font-size: 0.95rem; color: #aaa; line-height: 1.5; }
+
+.stats-container { background: #0e0e0e; padding: 15px; border: 1px solid #222; }
+.stat-row { display: flex; align-items: center; margin-bottom: 8px; }
+.stat-row:last-child { margin-bottom: 0; }
+.label { width: 70px; font-size: 0.6rem; letter-spacing: 1px; color: #666; font-weight: bold; }
+.bar-track { flex: 1; height: 6px; background: #222; overflow: hidden; border-radius: 2px; }
+.bar-fill { height: 100%; width: 0; background: var(--blood-bright); transition: width 1.2s ease-out; box-shadow: 0 0 10px var(--blood); }
+.watermark { text-align: center; margin-top: 15px; font-size: 0.6rem; color: #333; letter-spacing: 1px; }
+
+/* BUTTONS ACTION */
+.button-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
+.btn-sec {
+    flex: 1; padding: 12px; background: transparent; border: 1px solid #444;
+    color: #888; font-family: var(--font-body); font-weight: bold; cursor: pointer;
+    transition: 0.2s; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-sec:hover { border-color: var(--gold); color: var(--gold); background: #111; }
+.btn-sec i { font-size: 1rem; }
+
+.btn-link {
+    width: 100%; background: none; border: none; color: var(--gold-dim);
+    cursor: pointer; text-decoration: none; font-size: 0.9rem; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-link:hover { color: var(--gold); letter-spacing: 1px; }
+
+/* LEADERBOARD */
+.leaderboard-box { border-top: 1px solid #222; padding-top: 20px; margin-bottom: 20px; }
+.lb-header {
+    font-family: var(--font-title); color: var(--gold-bright); text-align: center;
+    font-size: 1.2rem; margin-bottom: 15px; letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--gold-dim);
+}
+.lb-list {
+    list-style: none; padding: 0; max-height: 250px; overflow-y: auto;
+    background: #0e0e0e; border: 1px solid #222;
+}
+.lb-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 15px; border-bottom: 1px solid #1a1a1a; font-size: 0.85rem;
+    animation: fadeIn 0.5s;
+}
+.lb-left { display: flex; gap: 12px; align-items: center; }
+.rank { font-family: var(--font-horror); font-size: 1.4rem; color: #444; width: 25px; text-align: center; }
+.user { display: block; font-weight: bold; color: #ccc; margin-bottom: 2px; }
+.khodam-small { display: block; font-size: 0.75rem; color: #666; font-style: italic; }
+
+/* LEADERBOARD BADGES */
+.lb-item:nth-child(1) .rank { color: #ffd700; text-shadow: 0 0 8px #ffd700; font-size: 1.6rem; }
+.lb-item:nth-child(2) .rank { color: #c0c0c0; text-shadow: 0 0 5px #c0c0c0; font-size: 1.5rem; }
+.lb-item:nth-child(3) .rank { color: #cd7f32; font-size: 1.5rem; }
+
+.lb-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; border: 1px solid; }
+.badge-legend { border-color: var(--gold); color: var(--gold); background: rgba(197, 160, 89, 0.1); }
+.badge-epic { border-color: var(--blood-bright); color: var(--blood-bright); background: rgba(255, 0, 0, 0.1); }
+.badge-rare { border-color: #0044ff; color: #4488ff; background: rgba(0, 68, 255, 0.1); }
+.badge-common { border-color: #444; color: #777; background: #111; }
+
+/* UTILS */
+.hidden { display: none; }
+.active { display: block; animation: slideUp 0.6s ease-out; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #0a0808; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+/* --- PENTING: FIX UNTUK SCREENSHOT --- */
+/* Class ini ditambahkan via JS saat tombol simpan ditekan */
+.snapshot-mode {
+    animation: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+.snapshot-mode::after { display: none !important; } /* Hapus efek kilau */
+
+/* ANIMATIONS */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shine { 0% { left: -150%; } 100% { left: 150%; } }
+@keyframes eyePulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
+@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+@keyframes tremble { 0% { transform: translateX(-1px); } 100% { transform: translateX(1px); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+@keyframes haunt { 0% { text-shadow: 2px 2px 0 #300; } 100% { text-shadow: 4px 4px 10px var(--blood-bright); } }
+@keyframes noise-1 { 0% { clip-path: inset(50% 0 30% 0); } 100% { clip-path: inset(10% 0 60% 0); } }
+@keyframes noise-2 { 0% { clip-path: inset(10% 0 50% 0); } 100% { clip-path: inset(80% 0 5% 0); } }
+@keyframes floatCard { 0%, 100% { transform: translateY(0); box-shadow: 0 20px 40px #000; } 50% { transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.8); } }
+@keyframes breath { 0%, 100% { box-shadow: 0 20px 60px -10px rgba(0,0,0,0.8); } 50% { box-shadow: 0 20px 70px -5px rgba(20, 0, 0, 0.6); } }

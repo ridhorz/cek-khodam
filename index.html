@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Cek Khodam</title>
+    <meta name="description" content="Cek siapa sosok penjaga spiritualmu.">
+    <meta name="theme-color" content="#0a0808">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Cinzel+Decorative:wght@700;900&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Screenshot Library -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <div class="bg-texture"></div>
+    <div class="bg-vignette"></div>
+
+    <main class="app-wrapper">
+        
+        <header class="app-header">
+            <h1 class="horror-title" data-text="CEK KHODAM">CEK KHODAM</h1>
+            <div class="divider-blood"></div>
+            <p>Membuka Tabir Penjaga Ghaib</p>
+        </header>
+
+        <div class="game-box">
+            
+            <!-- 1. INPUT -->
+            <section id="screenInput" class="screen active">
+                <div class="input-wrapper">
+                    <label>MASUKKAN NAMA LENGKAP</label>
+                    <input type="text" id="inputName" placeholder="KETIK NAMA..." autocomplete="off">
+                    <div class="input-glow"></div>
+                </div>
+                
+                <button id="btnSummon" class="btn-main">
+                    <span>BUKA MATA BATIN</span>
+                </button>
+            </section>
+
+            <!-- 2. LOADING -->
+            <section id="screenLoading" class="screen hidden">
+                <div class="pulse-wrapper">
+                    <div class="pulse-icon">👁️</div>
+                    <div class="pulse-ring"></div>
+                </div>
+                <p id="loadingText">Merasuki Jiwa...</p>
+            </section>
+
+            <!-- 3. HASIL -->
+            <section id="screenResult" class="screen hidden">
+                
+                <!-- AREA YANG AKAN DIFOTO -->
+                <div id="captureArea" class="result-card">
+                    <div class="card-header-row">
+                        <span id="rarityBadge" class="badge">UNKNOWN</span>
+                        <span class="serial-code">ID #<span id="cardId">000</span></span>
+                    </div>
+
+                    <div class="image-frame">
+                        <img id="khodamImg" src="" alt="Entity">
+                        <div class="inner-shadow"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <h2 id="khodamName">ENTITY NAME</h2>
+                        <div class="line-div"></div>
+                        <p id="khodamDesc">Deskripsi...</p>
+                    </div>
+
+                    <div class="stats-container">
+                        <div class="stat-row">
+                            <span class="label">KEKEJAMAN</span>
+                            <div class="bar-track"><div id="barAtk" class="bar-fill"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="label">AURA GELAP</span>
+                            <div class="bar-track"><div id="barMag" class="bar-fill"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END AREA FOTO -->
+
+                <div class="button-row">
+                    <button id="btnShare" class="btn-sec">
+                        <i class="fab fa-whatsapp"></i> Bagikan
+                    </button>
+                    <button id="btnSave" class="btn-sec">
+                        <i class="fas fa-download"></i> Simpan
+                    </button>
+                </div>
+                
+                <button id="btnRetry" class="btn-link">
+                    <i class="fas fa-rotate-right"></i> Cari Tumbal Lain
+                </button>
+            </section>
+
+        </div>
+
+        <!-- LEADERBOARD -->
+        <div class="leaderboard-box">
+            <div class="lb-header">KITAB TERKUTUK</div>
+            <ul id="leaderboardList" class="lb-list">
+                <li class="loading-msg">Memuat data...</li>
+            </ul>
+        </div>
+
+    </main>
+
+    <audio id="bgm" src="audio/ambience.mp3" loop></audio>
+    <audio id="sfxHeart" src="audio/heartbeat.mp3" loop></audio>
+    <audio id="sfxJump" src="audio/jumpscare.mp3"></audio>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
