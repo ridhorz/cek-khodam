@@ -48,7 +48,7 @@ cek-khodam/
 
 _Cobalah memasukkan nama-nama berikut untuk membuka entitas legendaris:_
 
-- `Redho Rizkiansyah`
+- `Idhoo RZ`
 - `Ridho`
 - `Admin`
 
@@ -58,4 +58,4 @@ Free to use and modify for educational or entertainment purposes.
 
 ---
 
-_Created with 💀 by [Ridho RZ]_
+Created with 💀 by _Ridho RZ_
