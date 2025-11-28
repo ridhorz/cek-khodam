@@ -28,6 +28,7 @@ const db = getDatabase(app);
 document.addEventListener("DOMContentLoaded", () => {
   // --- AUDIO ENGINE (Procedural Horror SFX) ---
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let isMuted = false;
 
   const HorrorSound = {
     ctx: audioCtx,
@@ -39,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return buffer;
     },
     hover() {
+      if (isMuted) return;
       if (this.ctx.state === "suspended") this.ctx.resume();
       const t = this.ctx.currentTime;
       const noise = this.ctx.createBufferSource();
@@ -60,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
       noise.stop(t + 0.5);
     },
     click() {
+      if (isMuted) return;
       if (this.ctx.state === "suspended") this.ctx.resume();
       const t = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
@@ -79,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       osc.stop(t + 0.3);
     },
     type() {
+      if (isMuted) return;
       if (this.ctx.state === "suspended") this.ctx.resume();
       const t = this.ctx.currentTime;
       const noise = this.ctx.createBufferSource();
@@ -330,6 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
       heart: document.getElementById("sfxHeart"),
       jump: document.getElementById("sfxJump"),
     },
+    btnMute: document.getElementById("btnMute"),
   };
 
   // --- EVENT LISTENERS ---
@@ -337,7 +342,12 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("mouseenter", () => HorrorSound.hover());
     btn.addEventListener("click", () => HorrorSound.click());
   });
-  els.input.addEventListener("input", () => HorrorSound.type());
+  els.input.addEventListener("input", () => {
+      HorrorSound.type();
+      triggerHaptic(10); // Glitch haptic
+  });
+
+  els.btnMute.addEventListener("click", toggleMute);
 
   els.btnSummon.addEventListener("click", startRitual);
   els.input.addEventListener("keypress", (e) => {
@@ -363,30 +373,84 @@ document.addEventListener("DOMContentLoaded", () => {
   function startRitual() {
     const name = els.input.value.trim();
     if (!name) {
-      const group = els.input.parentElement;
-      group.classList.add("shake");
-      if (navigator.vibrate) navigator.vibrate(200);
-      setTimeout(() => group.classList.remove("shake"), 400);
+      shakeInput();
       return;
     }
 
+    // --- PROFANITY FILTER ---
+    const badWords = ["anjing", "babi", "monyet", "kunyuk", "bajingan", "asu", "kontol", "memek", "jembut"]; // Add more as needed
+    if (badWords.some(word => name.toLowerCase().includes(word))) {
+        alert("Khodam menolak hadir untuk nama yang tidak sopan!");
+        shakeInput();
+        return;
+    }
+
+    // --- ANTI-SPAM ---
+    const lastSummon = localStorage.getItem("lastSummon");
+    if (lastSummon && Date.now() - lastSummon < 10000) { // 10 seconds cooldown
+        alert("Tunggu sebentar, energi spiritualmu sedang memulihkan diri...");
+        return;
+    }
+    localStorage.setItem("lastSummon", Date.now());
+
     HorrorSound.click();
-    els.audio.bgm.volume = 0.4;
-    els.audio.bgm.play().catch(() => {});
-    els.audio.heart.play();
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    if (!isMuted) {
+        els.audio.bgm.volume = 0.4;
+        els.audio.bgm.play().catch(() => {});
+        els.audio.heart.play();
+    }
+    triggerHaptic([100, 50, 100, 50, 100]); // Heartbeat pattern
 
     showScreen("loading");
 
     setTimeout(() => {
       els.audio.heart.pause();
-      els.audio.jump.play();
-      if (navigator.vibrate) navigator.vibrate(500);
-      revealKhodam(name);
+      if (!isMuted) els.audio.jump.play();
+      triggerHaptic([500, 100, 200]); // Jumpscare pattern
+
+      // --- KHODAM SELECTION LOGIC ---
+      const hash = generateHash(name);
+      let khodam;
+
+      // Easter Eggs
+      const lowerName = name.toLowerCase();
+      if (lowerName === "redho rizkiansyah" || lowerName === "ridho") {
+        khodam = {
+          name: "Fullstack Developer",
+          desc: "Coding siang malam, lupa mandi, lupa makan.",
+          rarity: "LEGENDARY",
+          power: 100,
+          img: "./img/developer.jpg",
+        };
+      } else if (lowerName === "admin") {
+        khodam = {
+          name: "Penguasa Gelap",
+          desc: "Mengendalikan sistem dari balik layar.",
+          rarity: "LEGENDARY",
+          power: 999,
+          img: "./img/penguasa_gelap.jpg",
+        };
+      } else {
+        // Normal Selection
+        const index = hash % KHODAMS.length;
+        khodam = KHODAMS[index];
+      }
+
+      revealKhodam(name, khodam, hash);
     }, 3500);
   }
 
-  function revealKhodam(name) {
+  function generateHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash);
+  }
+
+  function revealKhodam(name, khodam, hash) {
     els.card.name.innerText = khodam.name;
     els.card.desc.innerText = khodam.desc;
     els.card.badge.innerText = khodam.rarity;
@@ -413,6 +477,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
 
     saveToFirebase(name, khodam);
+    
+    showScreen("result");
   }
 
   // --- SHARE & SAVE ---
@@ -523,6 +589,15 @@ document.addEventListener("DOMContentLoaded", () => {
         let sortedData = Object.values(data);
         const score = { LEGENDARY: 4, EPIC: 3, RARE: 2, COMMON: 1 };
         sortedData.sort((a, b) => {
+          // Priority for "Ridho"
+          const nameA = a.user.toLowerCase();
+          const nameB = b.user.toLowerCase();
+          const isRidhoA = nameA.includes("ridho") || nameA === "redho rizkiansyah";
+          const isRidhoB = nameB.includes("ridho") || nameB === "redho rizkiansyah";
+
+          if (isRidhoA && !isRidhoB) return -1;
+          if (!isRidhoA && isRidhoB) return 1;
+
           let sA = score[a.rarity] || 0;
           let sB = score[b.rarity] || 0;
           if (sB !== sA) return sB - sA;
@@ -544,10 +619,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <span class="user">${escapeHtml(
                                   item.user
                                 )}</span>
-                                <span class="khodam-small">${item.khodam}</span>
+                                <span class="khodam-small">${escapeHtml(item.khodam)}</span>
                             </div>
                         </div>
-                        <div class="lb-badge ${badgeClass}">${item.rarity}</div>
+                        <div class="lb-badge ${badgeClass}">${escapeHtml(item.rarity)}</div>
                     `;
           els.lbList.appendChild(li);
         });
@@ -576,5 +651,56 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/"/g, "&quot;");
   }
 
+  function toggleMute() {
+      isMuted = !isMuted;
+      const icon = els.btnMute.querySelector("i");
+      
+      if (isMuted) {
+          icon.className = "fas fa-volume-xmark";
+          els.audio.bgm.pause();
+          els.audio.heart.pause();
+          els.audio.jump.pause();
+      } else {
+          icon.className = "fas fa-volume-high";
+          // Resume BGM if needed, or wait for interaction
+      }
+  }
+
+  function triggerHaptic(pattern) {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+  }
+
+  function createOrbs() {
+      const container = document.body;
+      const orbCount = 25;
+
+      for (let i = 0; i < orbCount; i++) {
+          const orb = document.createElement("div");
+          orb.classList.add("orb");
+          
+          // Random properties
+          const size = Math.random() * 10 + 2; // 2px - 12px
+          const left = Math.random() * 100; // 0% - 100%
+          const duration = Math.random() * 10 + 10; // 10s - 20s
+          const delay = Math.random() * 10; // 0s - 10s
+
+          orb.style.width = `${size}px`;
+          orb.style.height = `${size}px`;
+          orb.style.left = `${left}%`;
+          orb.style.animationDuration = `${duration}s`;
+          orb.style.animationDelay = `${delay}s`;
+
+          container.appendChild(orb);
+      }
+  }
+
+  function shakeInput() {
+      const group = els.input.parentElement;
+      group.classList.add("shake");
+      if (navigator.vibrate) navigator.vibrate(200);
+      setTimeout(() => group.classList.remove("shake"), 400);
+  }
+
+  createOrbs();
   initLeaderboard();
 });
