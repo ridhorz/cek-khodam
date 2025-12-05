@@ -10,14 +10,15 @@ import {
 
 // --- CONFIGURATION ---
 const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: "",
-  databaseURL: "",
+  apiKey: "AIzaSyCb38p7mT9R0vqcnDrWo_QVtTpSyqdN1aA",
+  authDomain: "cek-khodam-db.firebaseapp.com",
+  projectId: "cek-khodam-db",
+  storageBucket: "cek-khodam-db.firebasestorage.app",
+  messagingSenderId: "411043116392",
+  appId: "1:411043116392:web:4730c942fac2ed22fbd2dd",
+  measurementId: "G-VYNQPXBW41",
+  databaseURL:
+    "https://cek-khodam-db-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };
 
 // --- INITIALIZATION ---
